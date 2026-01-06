@@ -1,0 +1,23 @@
+{
+  "name": "laundryshare",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/mobile-web",
+    "web": "npm run web -w apps/mobile-web",
+    "ios": "npm run ios -w apps/mobile-web",
+    "android": "npm run android -w apps/mobile-web",
+    "lint": "npm run lint -w apps/mobile-web",
+    "format": "npm run format -w apps/mobile-web",
+    "test": "npm run test -w apps/mobile-web",
+    "typecheck": "npm run typecheck -w apps/mobile-web"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

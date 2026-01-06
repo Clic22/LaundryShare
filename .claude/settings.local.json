@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(BMad:agents:pm)",
+      "Skill(BMad:agents:architect)",
+      "Bash(vercel --version:*)",
+      "Bash(vercel whoami:*)",
+      "Bash(vercel login)",
+      "Bash(vercel link)",
+      "Bash(vercel link:*)",
+      "Bash(vercel env:*)",
+      "Bash(mkdir:*)",
+      "Skill(BMad:agents:dev)",
+      "Skill(BMad:agents:po)",
+      "Bash(npx create-expo-app@latest:*)",
+      "Bash(npm install:*)",
+      "mcp__plugin_supabase_supabase__list_projects",
+      "mcp__plugin_supabase_supabase__get_cost",
+      "mcp__plugin_supabase_supabase__confirm_cost",
+      "mcp__plugin_supabase_supabase__create_project",
+      "mcp__plugin_supabase_supabase__get_project_url",
+      "mcp__plugin_supabase_supabase__get_publishable_keys",
+      "Bash(npx tsc:*)",
+      "Bash(npx expo install react-dom react-native-web)",
+      "Bash(npx expo export:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run lint)",
+      "Bash(del:*)",
+      "Bash(del eslint.config.js)",
+      "Bash(npm run typecheck:*)",
+      "Skill(BMad:agents:qa)",
+      "mcp__plugin_supabase_supabase__apply_migration",
+      "mcp__plugin_supabase_supabase__list_tables",
+      "Bash(echo:*)",
+      "mcp__plugin_supabase_supabase__get_advisors"
+    ]
+  }
+}
