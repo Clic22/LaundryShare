@@ -29,6 +29,18 @@
     },
     "plugins": [
       "expo-web-browser"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1336c723-946c-4b9f-8286-724d6d920a3a"
+      }
+    },
+    "owner": "clic22",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1336c723-946c-4b9f-8286-724d6d920a3a"
+    }
   }
 }
