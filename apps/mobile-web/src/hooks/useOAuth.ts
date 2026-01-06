@@ -41,8 +41,13 @@ export function useOAuth() {
     if (Platform.OS === 'web') {
       const handleWebCallback = async () => {
         const hash = window.location.hash;
+        const fullUrl = window.location.href;
+
+        console.log('[OAuth] Checking callback - URL:', fullUrl);
+        console.log('[OAuth] Hash:', hash);
 
         if (hash && hash.includes('access_token')) {
+          console.log('[OAuth] Found access_token in hash, processing...');
           setIsLoading(true);
           setLoading(true);
           try {
@@ -67,7 +72,7 @@ export function useOAuth() {
               });
 
               // Set user immediately from JWT data
-              setUser({
+              const profile = {
                 id: userId,
                 email: email,
                 full_name: userMetadata.full_name || userMetadata.name || email.split('@')[0] || '',
@@ -76,7 +81,11 @@ export function useOAuth() {
                 is_profile_complete: false,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
-              } as Profile);
+              } as Profile;
+              console.log('[OAuth] Setting user profile:', profile);
+              setUser(profile);
+            } else {
+              console.log('[OAuth] No tokens found in hash');
             }
           } catch (err) {
             console.error('Web OAuth callback error:', err);
