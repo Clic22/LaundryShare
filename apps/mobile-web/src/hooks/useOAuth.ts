@@ -51,51 +51,32 @@ export function useOAuth() {
             const refreshToken = hashParams.get('refresh_token');
 
             if (accessToken && refreshToken) {
-              const { error: sessionError } = await supabase.auth.setSession({
+              // Clear the hash from URL immediately
+              window.history.replaceState(null, '', window.location.pathname);
+
+              // Decode JWT to get user info (don't wait for setSession which can hang)
+              const payload = JSON.parse(atob(accessToken.split('.')[1]));
+              const userId = payload.sub;
+              const email = payload.email || '';
+              const userMetadata = payload.user_metadata || {};
+
+              // Fire setSession without waiting (it will persist the session)
+              supabase.auth.setSession({
                 access_token: accessToken,
                 refresh_token: refreshToken,
               });
 
-              if (sessionError) {
-                throw sessionError;
-              }
-
-              // Clear the hash from URL
-              window.history.replaceState(null, '', window.location.pathname);
-
-              // Fetch profile
-              const { data: { user } } = await supabase.auth.getUser();
-
-              if (user) {
-                let profile = null;
-                for (let i = 0; i < 3; i++) {
-                  const { data } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
-
-                  if (data) {
-                    profile = data;
-                    break;
-                  }
-                  await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-
-                if (profile) {
-                  setUser(profile as Profile);
-                } else {
-                  setUser({
-                    id: user.id,
-                    email: user.email || '',
-                    full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
-                    avatar_url: user.user_metadata?.avatar_url || null,
-                    phone: null,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
-                  } as Profile);
-                }
-              }
+              // Set user immediately from JWT data
+              setUser({
+                id: userId,
+                email: email,
+                full_name: userMetadata.full_name || userMetadata.name || email.split('@')[0] || '',
+                avatar_url: userMetadata.avatar_url || userMetadata.picture || null,
+                phone: null,
+                is_profile_complete: false,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              } as Profile);
             }
           } catch (err) {
             console.error('Web OAuth callback error:', err);
