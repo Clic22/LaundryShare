@@ -102,7 +102,7 @@ export function useAuth() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [setUser, setLoading]);
+  }, []); // Empty deps: initialization runs once on mount, auth listener handles subsequent changes
 
   const signUp = useCallback(async (email: string, password: string, fullName: string) => {
     try {
