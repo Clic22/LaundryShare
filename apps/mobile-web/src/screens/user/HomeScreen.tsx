@@ -1,5 +1,4 @@
 import { Platform, View, Text, StyleSheet } from 'react-native';
-import { HostMapView } from '@/components/map/HostMapView';
 
 export default function HomeScreen() {
   // react-native-maps is not compatible with web, show placeholder
@@ -16,6 +15,9 @@ export default function HomeScreen() {
     );
   }
 
+  // Dynamically require the map view only on native platforms
+  // This prevents the web bundler from trying to include react-native-maps
+  const { HostMapView } = require('@/components/map/HostMapView');
   return <HostMapView />;
 }
 
