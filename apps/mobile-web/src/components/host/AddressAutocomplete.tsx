@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Platform } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 interface AddressResult {
@@ -25,6 +25,45 @@ export function AddressAutocomplete({ onSelect, initialValue }: Props) {
         </Text>
         <Text style={styles.errorSubtext}>
           Please add EXPO_PUBLIC_GOOGLE_PLACES_API_KEY to your .env.local file.
+        </Text>
+      </View>
+    );
+  }
+
+  // Web fallback: Google Places Autocomplete doesn't work on web
+  if (Platform.OS === 'web') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.webNoticeContainer}>
+          <Text style={styles.webNoticeTitle}>📱 Mobile Feature</Text>
+          <Text style={styles.webNoticeText}>
+            Address autocomplete with Google Places is available on the mobile app.
+          </Text>
+          <Text style={styles.webNoticeText}>
+            For testing on web, you can manually enter an address below.
+          </Text>
+        </View>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Enter your address in France"
+          placeholderTextColor="#999"
+          defaultValue={initialValue}
+          onChangeText={(text) => {
+            // For web testing, allow manual input
+            // In production, this would be replaced with a web-compatible geocoding solution
+            if (text.length > 10) {
+              onSelect({
+                address: text,
+                coordinates: {
+                  lat: 48.8566, // Default to Paris for testing
+                  lng: 2.3522,
+                },
+              });
+            }
+          }}
+        />
+        <Text style={styles.helperText}>
+          This will be visible to users looking for nearby hosts
         </Text>
       </View>
     );
@@ -136,5 +175,24 @@ const styles = StyleSheet.create({
   errorSubtext: {
     fontSize: 14,
     color: '#856404',
+  },
+  webNoticeContainer: {
+    padding: 16,
+    backgroundColor: '#E3F2FD',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#90CAF9',
+    marginBottom: 16,
+  },
+  webNoticeTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1565C0',
+    marginBottom: 8,
+  },
+  webNoticeText: {
+    fontSize: 14,
+    color: '#1976D2',
+    marginBottom: 4,
   },
 });
