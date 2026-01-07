@@ -6,6 +6,7 @@ import AuthNavigator from './AuthNavigator';
 import HomeScreen from '@/screens/HomeScreen';
 import ProfileSetupScreen from '@/screens/profile/ProfileSetupScreen';
 import ProfileEditScreen from '@/screens/profile/ProfileEditScreen';
+import HostRegistrationScreen from '@/screens/host/HostRegistrationScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -16,6 +17,7 @@ export type RootStackParamList = {
 export type MainStackParamList = {
   Home: undefined;
   ProfileEdit: undefined;
+  HostRegistration: undefined;
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -33,6 +35,11 @@ function MainNavigator() {
         name="ProfileEdit"
         component={ProfileEditScreen}
         options={{ title: 'Edit Profile' }}
+      />
+      <MainStack.Screen
+        name="HostRegistration"
+        component={HostRegistrationScreen}
+        options={{ title: 'Become a Host' }}
       />
     </MainStack.Navigator>
   );
