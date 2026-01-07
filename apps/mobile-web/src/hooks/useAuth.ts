@@ -25,6 +25,8 @@ export function useAuth() {
 
   // Initialize auth state on mount
   useEffect(() => {
+    let isInitialized = false;
+
     const initializeAuth = async () => {
       setLoading(true);
       try {
@@ -77,14 +79,18 @@ export function useAuth() {
         setUser(null);
       } finally {
         setLoading(false);
+        isInitialized = true;
       }
     };
 
     initializeAuth();
 
-    // Listen for auth state changes
+    // Listen for auth state changes (but skip during initialization)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // Skip if we're still initializing to prevent double-fetching
+        if (!isInitialized) return;
+
         if (event === 'SIGNED_IN' && session?.user) {
           const { data: profile } = await supabase
             .from('profiles')
