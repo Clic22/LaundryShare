@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, useIsHost } from '@/stores/authStore';
 import { useProfile } from '@/hooks/useProfile';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import { validatePhone } from '@/utils/validators';
@@ -19,11 +19,13 @@ import { validatePhone } from '@/utils/validators';
 interface ProfileEditScreenProps {
   navigation: {
     goBack: () => void;
+    navigate: (screen: string) => void;
   };
 }
 
 export default function ProfileEditScreen({ navigation }: ProfileEditScreenProps) {
   const user = useAuthStore((state) => state.user);
+  const isHost = useIsHost();
   const { updateProfile, isUpdating, error: profileError } = useProfile();
   const { pickImage, uploadAvatar, isUploading, error: imageError } = useImagePicker();
 
@@ -188,6 +190,31 @@ export default function ProfileEditScreen({ navigation }: ProfileEditScreenProps
             <Text style={styles.hintText}>Email cannot be changed</Text>
           </View>
 
+          {/* Become a Host Section */}
+          <View style={styles.hostSection}>
+            <Text style={styles.sectionTitle}>Host Status</Text>
+            {isHost ? (
+              <View style={styles.hostCard}>
+                <Text style={styles.hostBadge}>✓ You're a host!</Text>
+                <Text style={styles.hostDescription}>
+                  You can now offer laundry services to customers
+                </Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.becomeHostCard}
+                onPress={() => navigation.navigate('HostRegistration')}
+                disabled={isLoading}
+              >
+                <Text style={styles.becomeHostTitle}>Become a Host</Text>
+                <Text style={styles.becomeHostDescription}>
+                  Earn money by offering your washing machine to others
+                </Text>
+                <Text style={styles.becomeHostArrow}>→</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
           {/* Save Button */}
           <TouchableOpacity
             style={[styles.button, isLoading && styles.buttonDisabled]}
@@ -335,5 +362,59 @@ const styles = StyleSheet.create({
   cancelText: {
     color: '#6b7280',
     fontSize: 14,
+  },
+  hostSection: {
+    marginTop: 24,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 12,
+  },
+  hostCard: {
+    backgroundColor: '#d1fae5',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#6ee7b7',
+  },
+  hostBadge: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#065f46',
+    marginBottom: 4,
+  },
+  hostDescription: {
+    fontSize: 14,
+    color: '#047857',
+  },
+  becomeHostCard: {
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+    position: 'relative',
+  },
+  becomeHostTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 4,
+  },
+  becomeHostDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 8,
+  },
+  becomeHostArrow: {
+    position: 'absolute',
+    right: 16,
+    top: '50%',
+    fontSize: 24,
+    color: '#2563eb',
+    transform: [{ translateY: -12 }],
   },
 });
