@@ -26,6 +26,7 @@ export function useAuth() {
   // Initialize auth state on mount
   useEffect(() => {
     const initializeAuth = async () => {
+      setLoading(true);
       try {
         // On web, check for OAuth callback tokens in URL hash FIRST
         if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -74,6 +75,8 @@ export function useAuth() {
       } catch (error) {
         console.error('Error initializing auth:', error);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -99,7 +102,7 @@ export function useAuth() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [setUser]);
+  }, [setUser, setLoading]);
 
   const signUp = useCallback(async (email: string, password: string, fullName: string) => {
     try {
