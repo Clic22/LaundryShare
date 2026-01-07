@@ -3,15 +3,21 @@ import { Platform } from 'react-native';
 import { supabase } from '@/services/supabase';
 import { useAuthStore, Profile } from '@/stores/authStore';
 
-// Simple profile fetch without retry to diagnose infinite loop
-async function fetchProfile(userId: string): Promise<Profile | null> {
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
+// Helper to fetch profile with retry
+async function fetchProfileWithRetry(userId: string, maxAttempts = 3): Promise<Profile | null> {
+  for (let i = 0; i < maxAttempts; i++) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
 
-  return profile as Profile | null;
+    if (profile) return profile as Profile;
+    if (i < maxAttempts - 1) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+  return null;
 }
 
 export function useAuth() {
@@ -19,9 +25,7 @@ export function useAuth() {
 
   // Initialize auth state on mount
   useEffect(() => {
-
     const initializeAuth = async () => {
-      setLoading(true);
       try {
         // On web, check for OAuth callback tokens in URL hash FIRST
         if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -48,7 +52,7 @@ export function useAuth() {
         const { data: { session } } = await supabase.auth.getSession();
 
         if (session?.user) {
-          const profile = await fetchProfile(session.user.id);
+          const profile = await fetchProfileWithRetry(session.user.id);
 
           if (profile) {
             setUser(profile);
@@ -70,21 +74,32 @@ export function useAuth() {
       } catch (error) {
         console.error('Error initializing auth:', error);
         setUser(null);
-      } finally {
-        setLoading(false);
       }
     };
 
-    // Start initialization
     initializeAuth();
 
-    // TODO: Re-enable auth state listener after diagnosing infinite loop issue
-    // For now, commenting out to isolate the problem
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          setUser(profile as Profile);
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+        }
+      }
+    );
 
     return () => {
-      // Cleanup if needed
+      subscription.unsubscribe();
     };
-  }, []); // Empty deps: initialization runs once on mount, auth listener handles subsequent changes
+  }, [setUser]);
 
   const signUp = useCallback(async (email: string, password: string, fullName: string) => {
     try {

@@ -21,11 +21,19 @@ interface AuthState {
   signOut: () => void;
 }
 
-// Temporarily disable persistence to diagnose infinite loop
-export const useAuthStore = create<AuthState>()((set) => ({
-  user: null,
-  isLoading: true,
-  setUser: (user) => set({ user }),
-  setLoading: (isLoading) => set({ isLoading }),
-  signOut: () => set({ user: null, isLoading: false }),
-}));
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      isLoading: true,
+      setUser: (user) => set({ user, isLoading: false }),  // Set both user and isLoading
+      setLoading: (isLoading) => set({ isLoading }),
+      signOut: () => set({ user: null, isLoading: false }),
+    }),
+    {
+      name: 'auth-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({ user: state.user }),
+    }
+  )
+);
