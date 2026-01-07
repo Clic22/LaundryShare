@@ -26,6 +26,8 @@ export function useAuth() {
 
   // Initialize auth state on mount
   useEffect(() => {
+    let subscription: { unsubscribe: () => void } | null = null;
+
     const initializeAuth = async () => {
       setLoading(true);
       try {
@@ -78,34 +80,32 @@ export function useAuth() {
         setUser(null);
       } finally {
         setLoading(false);
-        isInitializedRef.current = true;
       }
     };
 
-    initializeAuth();
+    // Start initialization
+    initializeAuth().then(() => {
+      // ONLY register auth state listener AFTER initialization completes
+      const { data } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (event === 'SIGNED_IN' && session?.user) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
 
-    // Listen for auth state changes (but skip during initialization)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        // Skip if we're still initializing to prevent double-fetching
-        if (!isInitializedRef.current) return;
-
-        if (event === 'SIGNED_IN' && session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
-          setUser(profile as Profile);
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
+            setUser(profile as Profile);
+          } else if (event === 'SIGNED_OUT') {
+            setUser(null);
+          }
         }
-      }
-    );
+      );
+      subscription = data.subscription;
+    });
 
     return () => {
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, []); // Empty deps: initialization runs once on mount, auth listener handles subsequent changes
 
