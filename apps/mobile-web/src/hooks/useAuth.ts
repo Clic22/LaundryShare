@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { supabase } from '@/services/supabase';
 import { useAuthStore, Profile } from '@/stores/authStore';
@@ -22,11 +22,10 @@ async function fetchProfileWithRetry(userId: string, maxAttempts = 3): Promise<P
 
 export function useAuth() {
   const { user, isLoading, setUser, setLoading, signOut: clearStore } = useAuthStore();
+  const isInitializedRef = useRef(false);
 
   // Initialize auth state on mount
   useEffect(() => {
-    let isInitialized = false;
-
     const initializeAuth = async () => {
       setLoading(true);
       try {
@@ -79,7 +78,7 @@ export function useAuth() {
         setUser(null);
       } finally {
         setLoading(false);
-        isInitialized = true;
+        isInitializedRef.current = true;
       }
     };
 
@@ -89,7 +88,7 @@ export function useAuth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         // Skip if we're still initializing to prevent double-fetching
-        if (!isInitialized) return;
+        if (!isInitializedRef.current) return;
 
         if (event === 'SIGNED_IN' && session?.user) {
           const { data: profile } = await supabase
