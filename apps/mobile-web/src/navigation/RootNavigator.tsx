@@ -3,10 +3,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuth } from '@/hooks/useAuth';
 import AuthNavigator from './AuthNavigator';
-import HomeScreen from '@/screens/HomeScreen';
 import ProfileSetupScreen from '@/screens/profile/ProfileSetupScreen';
 import ProfileEditScreen from '@/screens/profile/ProfileEditScreen';
 import HostRegistrationScreen from '@/screens/host/HostRegistrationScreen';
+import { MainNavigator } from './MainNavigator';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -15,7 +15,7 @@ export type RootStackParamList = {
 };
 
 export type MainStackParamList = {
-  Home: undefined;
+  Tabs: undefined;
   ProfileEdit: undefined;
   HostRegistration: undefined;
 };
@@ -23,13 +23,13 @@ export type MainStackParamList = {
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const MainStack = createNativeStackNavigator<MainStackParamList>();
 
-function MainNavigator() {
+function MainStackNavigator() {
   return (
     <MainStack.Navigator>
       <MainStack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ title: 'LaundryShare' }}
+        name="Tabs"
+        component={MainNavigator}
+        options={{ headerShown: false }}
       />
       <MainStack.Screen
         name="ProfileEdit"
@@ -71,7 +71,7 @@ export default function RootNavigator() {
         ) : !isProfileComplete ? (
           <RootStack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
         ) : (
-          <RootStack.Screen name="Main" component={MainNavigator} />
+          <RootStack.Screen name="Main" component={MainStackNavigator} />
         )}
       </RootStack.Navigator>
     </NavigationContainer>
