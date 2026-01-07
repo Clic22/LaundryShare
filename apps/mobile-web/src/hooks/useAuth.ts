@@ -102,7 +102,6 @@ export function useAuth() {
   }, [setUser]);
 
   const signUp = useCallback(async (email: string, password: string, fullName: string) => {
-    setLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -126,13 +125,12 @@ export function useAuth() {
       }
 
       return data;
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      throw error;
     }
-  }, [setUser, setLoading]);
+  }, [setUser]);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -153,21 +151,20 @@ export function useAuth() {
       }
 
       return data;
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      throw error;
     }
-  }, [setUser, setLoading]);
+  }, [setUser]);
 
   const signOut = useCallback(async () => {
-    setLoading(true);
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       clearStore();
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      throw error;
     }
-  }, [clearStore, setLoading]);
+  }, [clearStore]);
 
   return {
     user,
